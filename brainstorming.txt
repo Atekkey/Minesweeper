@@ -1,0 +1,39 @@
+https://minesweepergame.com/strategy/how-to-play-minesweeper.php#:~:text=Minesweeper%20is%20a%20game%20where,mine%20you%20lose%20the%20game!
+In windows Minesweeper:
+- Size: up to 30 by 24
+- Mines: min of 10, max of (x-1)(y-1)
+
+Extraneuous features:
+- Clicking a number that has revealed its mines clears all free spaces around it
+    - AKA "Chording"
+- First click can never be a mine
+
+Tasks to Complete:
+
+- Mine generation
+    - Where to put mines
+        - Randomization?
+    - How many mines
+    - Can the first click be a mine?
+
+- User Interface
+    - Detection
+        - Mouse positioning and clicking
+        - Flags via right click??
+    - Diff Numbers different colors
+    - Opening a huge empty area
+        - Recurson: 
+            - If click touches a 0 number, open that cell
+            - If that cell touches a 0 cell, open that 0 cell
+
+- Creation Logic
+    1. Create an array of board size filled with 0's
+    2. Randomly fill spots in the array with mines (maybe "X")
+    3. Run the array thru a fxn, that iterates thru each spot and renumbers it to the # of X's
+
+- Runtime Logic
+    - 
+
+- Game status Detection
+    - Lost game indicator
+    - Won game indicator
