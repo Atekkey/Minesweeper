@@ -4,6 +4,10 @@
 #include <vector>
 using namespace std;
 
+// Thoughts:
+// Maybe try an array of cells?
+// There should be a different board class for each combo of rows/col. 
+
 int randInt(int leng, int seed){ //returns an int from 0 to leng-1 (inclusive), use seed up to 40
     srand((unsigned) time(NULL));
     int randNum = ((int) ((pow(rand(), 2 + (seed/80) )) / (pow(10, seed%10)))) % leng;
