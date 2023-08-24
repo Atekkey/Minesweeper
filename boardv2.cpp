@@ -1,5 +1,5 @@
 #include <iostream>
-
+using namespace std;
 //errors line 26
 
 class cell{
@@ -16,7 +16,7 @@ class cell{
 };
 class boardSmall{
     public:
-        cell board[10][10];
+        cell* board = new cell[10][10];
         boardSmall(){
             setUp();
         };
@@ -24,7 +24,9 @@ class boardSmall{
         void setUp(){
             for (int i = 0; i < 10; i++) {
                 for (int j = 0; i < 10; j++) {
+                    std::cout << i << " " << j << " " << cell(i,j).x;
                     board[i][j] = cell(i, j);
+
                 }
             }
         }
