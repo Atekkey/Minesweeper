@@ -16,7 +16,7 @@ class cell{
 };
 class boardSmall{
     public:
-        cell* board = new cell[10][10];
+        cell board[10][10];
         boardSmall(){
             setUp();
         };
