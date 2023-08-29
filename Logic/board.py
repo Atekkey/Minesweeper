@@ -92,5 +92,5 @@ class Board():
         print(self)
 
 #MAIN
-myBoard = Board((10,10), 0)
+myBoard = Board(size = (10,10), mine = 0)
 myBoard.main()
