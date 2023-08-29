@@ -47,13 +47,50 @@ class Board():
                 self.board[temp[0]][temp[1]] = "X"
                 iter += 1
     
+    def validTuples(self, myRowCol):
+        row, col = myRowCol[0], myRowCol[1]
+        rowMax, colMax = len(self.board), len(self.board[0])
+        myList = []
+        if(col-1 >= 0): #3/8
+            myList.append((row, col-1))
+            if(row-1 >= 0):
+                myList.append((row-1, col-1))
+            if(row+1 < rowMax):
+                myList.append((row+1, col-1))
+        if(col+1 < colMax): #6/8
+            myList.append((row, col+1))
+            if(row-1 >= 0):
+                myList.append((row-1, col+1))
+            if(row+1 < rowMax):
+                myList.append((row+1, col+1))
+        if(row-1 >= 0):
+            myList.append((row-1, col))
+        if(row+1 < rowMax):
+            myList.append((row+1, col))
+        return myList
+            
+        
+        
+    
     def populate(self): #Populate the numbers
         print(" ")
         #Iterate thru the X's or thru the 0's?
         #Edge cases (literally)
 
+        #0 iter
+        for row in range(len(self.board)):
+            for col in range(len(self.board[row])):
+                if(self.board[row][col] == "X"):
+                    continue
+                myTuples = self.validTuples((row, col))
+                for k in myTuples:
+                    if(self.board[k[0]][k[1]] == "X"):
+                        self.board[row][col] += 1
+    def main(self):
+        self.plant()
+        self.populate()
+        print(self)
+
 #MAIN
 myBoard = Board((10,10), 0)
-myBoard.plant()
-print(myBoard.showShown())
-print(myBoard)
+myBoard.main()
