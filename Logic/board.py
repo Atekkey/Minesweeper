@@ -134,5 +134,5 @@ class Board():
         print("You won!")
 
 #MAIN
-myBoard = Board(size = (10,10), mine = 10)
+myBoard = Board(size = (10,10), mine = 15)
 myBoard.main()
