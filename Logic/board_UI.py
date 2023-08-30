@@ -190,6 +190,7 @@ while True:
                     window[(i,j)].update(button_color = "Red", image_filename = "mineB1.png", image_size = (38,40), image_subsample = 6 )
                     won = False
                     break
+    myBoard.checkWin()
     if(not won or myBoard.gameOver):
         break
 
@@ -198,6 +199,7 @@ for i in range(10):
         window[(i,j)].update(myBoard.board[i][j])
         if(myBoard.board[i][j] == "X"):
             window[(i,j)].update(button_color = "Red", image_filename = "mineB1.png", image_size = (38,40), image_subsample = 6 )
+myBoard.checkWin()
 if(not won):
     window["MS"].update("YOU LOST!!")
 if(myBoard.gameOver):
