@@ -5,6 +5,15 @@
 #!!Assign numbers!!
 
 import random
+import sys
+
+try:
+    nums = sys.argv[1:]
+    mainSize = (int(nums[0]), int(nums[1]))
+except:
+    mainSize = 10, 10
+
+
 class Board():
 
     def __init__(self, size, mine): #Constructor. If mine<=0, gives a random mine#
@@ -129,7 +138,8 @@ class Board():
         self.populate()
 
 #MAIN
-myBoard = Board(size = (10,10), mine = 15)
+        
+myBoard = Board(size = mainSize, mine = mainSize[0]*mainSize[1]//8)
 
 myBoard.setUp()
 
@@ -142,12 +152,12 @@ import PySimpleGUI as sg
 sg.theme('LightBlue1') 
 
 layout = [
-        [sg.Text("MINESWEEPER", key = "MS", text_color="black")],
-        [[sg.Button("", size = (4, 2), button_color = "black on orange", key = (i,j)) for j in range(10)] for i in range(10)],
-        [sg.Button("exit", button_color = "white on blue"), sg.Button("    Flag Mode    ", button_color = "white on blue", key = "FM")]
+        #[sg.Text("\t \tMINESWEEPER", key = "MS", text_color="black", font=("Arial", 15), pad=(mainSize[0]*10,0))],
+        [[sg.Button("", size = (2,2), button_color = "black on orange", key = (i,j)) for j in range(mainSize[0])] for i in range(mainSize[1])],
+        [sg.Button("Exit", button_color = "white on blue", size=(10,2), ), sg.Button("Flag Mode", button_color = "white on blue", key = "FM", size=(10,2))]
           ]
 
-window = sg.Window('Minesweeper', layout, size = (570,570))
+window = sg.Window('Minesweeper', layout, size = ((mainSize[0]*80,mainSize[1]*80)), element_justification='c')
 
 won = True
 flagMode = False
@@ -166,10 +176,10 @@ while True:
 
     if(flagMode and event != "FM"):
         if(myBoard.isFlag[event[0]][event[1]] == False):
-            window[event].update(image_filename = "flag1.png", image_size = (38,40), image_subsample = 6)
+            window[event].update(image_filename = "flag1.png",  image_subsample = 20)
             myBoard.isFlag[event[0]][event[1]] = True
         else:
-            window[event].update(image_filename = "clear1.png", image_size = (38,40), image_subsample = 6)
+            window[event].update(image_filename = "clear1.png",  image_subsample = 50)
             myBoard.isFlag[event[0]][event[1]] = False
 
         continue
@@ -209,9 +219,6 @@ while True:
     event, values = window.read()
     if event == sg.WIN_CLOSED or event == "exit":
         break
-
-    
-
 
 
 window.close()
