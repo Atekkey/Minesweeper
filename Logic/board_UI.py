@@ -6,12 +6,16 @@
 
 import random
 import sys
+import keyboard as kb
 
 try:
     nums = sys.argv[1:]
-    mainSize = (int(nums[0]), int(nums[1]))
+    mainSize = [int(nums[0]), int(nums[1])]
+    mainSize[0] = min(max(mainSize[0], 3), 20)
+    mainSize[1] = min(max(mainSize[1], 3), 12)
+
 except:
-    mainSize = 10, 10
+    mainSize = [10, 10]
 
 
 class Board():
@@ -111,6 +115,16 @@ class Board():
             if(self.board[row][col] == 0):
                 self.chain((row,col))
 
+    def chord(self, myRowCol):
+        toCheck = self.validTuples((myRowCol))
+        for tup in toCheck:
+            if(self.isFlag[tup[0]][tup[1]]):
+                continue
+            else:
+                self.shown[tup[0]][tup[1]] = True
+                if(self.board[tup[0]][tup[1]] == 0):
+                    self.chain(tup)
+    
     def ask(self):
         got = input("Give a row and col in form #x# \n")
         got = got.split("x")
@@ -138,87 +152,123 @@ class Board():
         self.populate()
 
 #MAIN
+def main():
+    myBoard = Board(size = mainSize, mine = mainSize[0]*mainSize[1]//8)
+
+    myBoard.setUp()
+
+
+    """
+    USER INTERFACE
+    """
+
+    import PySimpleGUI as sg
+    sg.theme('LightBlue1') 
+
+    layout = [
+            [sg.Text("MINESWEEPER", key = "MS", text_color="black", font=("Arial", 15, ), )],
+            [[sg.Button("", size = (2,2), button_color = "black on orange", key = (i,j)) for j in range(mainSize[0])] for i in range(mainSize[1])],
+            [sg.Button("Restart", button_color = "white on blue", size=(10,2), key = "restart" ), sg.Button("Exit", button_color = "white on blue", size=(10,2), key = "exit" ), sg.Button("Flag Mode", button_color = "white on blue", key = "FM", size=(10,2))]
+            ]
+
+    window = sg.Window('Minesweeper', layout, size = ((mainSize[0]*80,mainSize[1]*80 )), element_justification='c')
+
+    won = True
+    flagMode = False
+    while True:
+        event, values = window.read()
+        row, col = event[0], event[1]
+
+        if event == sg.WIN_CLOSED or event == "exit": # Player Leaves Game
+            window.close()
+            return False
         
-myBoard = Board(size = mainSize, mine = mainSize[0]*mainSize[1]//8)
+        if event == "restart": # Player Leaves Game
+            window.close()
+            return True
 
-myBoard.setUp()
-
-
-"""
-USER INTERFACE
-"""
-
-import PySimpleGUI as sg
-sg.theme('LightBlue1') 
-
-layout = [
-        #[sg.Text("\t \tMINESWEEPER", key = "MS", text_color="black", font=("Arial", 15), pad=(mainSize[0]*10,0))],
-        [[sg.Button("", size = (2,2), button_color = "black on orange", key = (i,j)) for j in range(mainSize[0])] for i in range(mainSize[1])],
-        [sg.Button("Exit", button_color = "white on blue", size=(10,2), ), sg.Button("Flag Mode", button_color = "white on blue", key = "FM", size=(10,2))]
-          ]
-
-window = sg.Window('Minesweeper', layout, size = ((mainSize[0]*80,mainSize[1]*80)), element_justification='c')
-
-won = True
-flagMode = False
-while True:
-    
-    event, values = window.read()
-    row, col = event[0], event[1]
-
-    if(event == "FM"):
-        flagMode = not flagMode
-        if(flagMode):
-            window["FM"].update(button_color = "black on green")
-        else:
-            window["FM"].update(button_color = "white on blue")
+        if(event == "FM"): # Player Clicked Flag Mode Button
+            flagMode = not flagMode
+            if(flagMode):
+                window["FM"].update(button_color = "black on green")
+            else:
+                window["FM"].update(button_color = "white on blue")
+            continue
 
 
-    if(flagMode and event != "FM"):
-        if(myBoard.isFlag[event[0]][event[1]] == False):
-            window[event].update(image_filename = "flag1.png",  image_subsample = 20)
-            myBoard.isFlag[event[0]][event[1]] = True
-        else:
+        if(flagMode): # Player Places Flag
+            if myBoard.shown[row][col]: # Cannot put flag
+                continue
+            if(myBoard.isFlag[row][col] == False):
+                window[event].update(image_filename = "flag1.png",  image_subsample = 17)
+                myBoard.isFlag[row][col] = True
+            else:
+                window[event].update(image_filename = "clear1.png",  image_subsample = 50)
+                myBoard.isFlag[row][col] = False
+            continue
+
+        needUpdate = False
+
+        if(myBoard.isFlag[row][col] == True): # Is flagged:
             window[event].update(image_filename = "clear1.png",  image_subsample = 50)
-            myBoard.isFlag[event[0]][event[1]] = False
 
-        continue
-
-    if(flagMode or event == "FM"):
-        continue
-
-    if event == sg.WIN_CLOSED or event == "exit":
-        break
-    myBoard.shown[row][col] = True
-    if(myBoard.board[row][col] == 0):
-        myBoard.chain((row,col))
-    for i in range(10):
-        for j in range(10):
-            if (myBoard.shown[i][j]):
-                window[(i,j)].update(myBoard.board[i][j], button_color = "black on yellow")
-                if(myBoard.board[i][j] == "X"):
-                    window[(i,j)].update(button_color = "Red", image_filename = "mineB1.png", image_size = (38,40), image_subsample = 6 )
-                    won = False
-                    break
-    myBoard.checkWin()
-    if(not won or myBoard.gameOver):
-        break
-
-for i in range(10):
-    for j in range(10):
-        window[(i,j)].update(myBoard.board[i][j])
+        if(myBoard.board[row][col] == 0): # Chain 0 Logic
+            myBoard.shown[row][col] = True
+            myBoard.chain((row,col))
+            needUpdate = True
+        elif(myBoard.shown[row][col] == True): # Chord Chain Logic
+            myBoard.chord((row,col))
+            needUpdate = True
+        myBoard.shown[row][col] = True
+        if needUpdate:
+            for i in range(mainSize[1]):
+                for j in range(mainSize[0]):
+                    if (myBoard.shown[i][j]):
+                        window[(i,j)].update(myBoard.board[i][j], button_color = "black on yellow")
+                        #window[(i,j)].update(image_filename = "clear1.png",  image_subsample = 50)
+                        if(myBoard.board[i][j] == "X"):
+                            window[(i,j)].update(button_color = "Red", image_filename = "mineB1.png", image_subsample = 20 )
+                            won = False
+                            break
+        # Single Click
+        i,j = row, col
+        window[(i,j)].update(myBoard.board[i][j], button_color = "black on yellow")
         if(myBoard.board[i][j] == "X"):
-            window[(i,j)].update(button_color = "Red", image_filename = "mineB1.png", image_size = (38,40), image_subsample = 6 )
-myBoard.checkWin()
-if(not won):
-    window["MS"].update("YOU LOST!!")
-if(myBoard.gameOver):
-    window["MS"].update("YOU WON!!")
+            window[(i,j)].update(button_color = "Red", image_filename = "mineB1.png", image_subsample = 20 )
+            won = False
+            break
+        myBoard.checkWin()
+        if(not won or myBoard.gameOver):
+            break
 
-while True:
-    event, values = window.read()
-    if event == sg.WIN_CLOSED or event == "exit":
-        break
+    for i in range(mainSize[1]):
+        for j in range(mainSize[0]):
+            window[(i,j)].update(myBoard.board[i][j])
+            if(myBoard.board[i][j] == "X"):
+                window[(i,j)].update(button_color = "Red", image_filename = "mineB1.png", image_subsample = 20 )
+    myBoard.checkWin()
+    if(not won):
+        window["MS"].update("YOU LOST!!")
+        window["MS"].update(text_color = "red")
+    if(myBoard.gameOver):
+        window["MS"].update("YOU WON!!")
+        window["MS"].update(text_color = "green")
+
+    while True:
+        event, values = window.read() # Wait for any click to leave
+        if event == "exit" or event == sg.WIN_CLOSED:
+            window.close()
+            return False
+        if event == "restart":
+            window.close()
+            return True
+    # END MAIN
 
 
-window.close()
+playAgain = True
+while playAgain:
+    try:
+        playAgain = main()
+    except Exception as e:
+        print("Quit on ", e)
+        playAgain = False
